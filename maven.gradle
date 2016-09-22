@@ -1,0 +1,48 @@
+// mavenプラグインを有効にするか
+enable = false
+
+/* アーカイブをアップロードするリポジトリのURL
+ * $HOME$/.gradle/gradle.propertiesに[ mavenRepositoryUrl ]の項目を記述することでも対応が可能( 推奨 )
+ * ※ $HOME$/.gradle/gradle.propertiesに記述された値の方が優先される
+ */
+url = '' // enableがtrueならば必須項目
+
+/* urlに対する通信プロトコル
+ * デフォルトではurlから自動取得される
+ * ['file', 'ftp', 'http', 'https', 'scp' ]のいずれかでなければいけない
+ */
+protocol = ( project.mavenRepositoryUrl ?: url ).takeWhile { it != ':' } // enableがtrueならば必須項目
+
+/* 認証に関する情報
+ * [ user, password, privatekey, passphrase ]の項目は$HOME$/.gradle/gradle.propertiesに
+ * [ mavenUserName, mavenPassword, mavenPrivateKey, mavenPassphrase ]の項目を記述することでも対応が可能( 推奨 )
+ * ※ $HOME$/.gradle/gradle.propertiesに記述された値の方が優先される
+ * 記述例)
+ * mavenRepositoryUrl=http://www.xxx.yyy/maven/
+ * mavenUserName=john_smith
+ * mavenPassword=1234
+ */
+auth = [
+  user:       '', // enableがtrueならば必須項目
+  password:   '', // enableがtrueかつ､protocolが[ 'ftp', 'http', 'https' ]のいずれかであれば必須項目
+  privatekey: '', // enableがtrueかつ､protocolが'scp'であれば必須項目
+  // privatekeyにパスフレーズを設定してある場合は記述する
+  passphrase: ''
+]
+
+pom = [
+  inceptionYear: '2016', // enableの値にかかわらず必須項目
+  licenses: [
+    // 最低でも一つはライセンスを設定する
+    [
+      name:         'MMPL 1.0',                             // enableの値にかかわらず必須項目
+      url:          'https://manofj.com/licenses/mmpl-1.0', // enableの値にかかわらず必須項目
+      distribution: 'repo'
+    ]
+    /*[
+      name:         'MIT License',
+      url:          'http://www.opensource.org/licenses/mit-license.php',
+      distribution: 'repo'
+    ]*/
+  ]
+]
