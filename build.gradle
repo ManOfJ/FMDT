@@ -70,7 +70,6 @@ task setupMyWorkspace {
     readme.text =
       readme.text
         .replace( '@mod_name@', mcmod.name )
-        .replace( '@mod_version@', mcmod.version )
         .replace( '@author@', mcmod.author )
         .replace( '@inception_year@', rootProject.maven.pom.inceptionYear )
         .replace( '@licenses@',

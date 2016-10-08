@@ -1,7 +1,5 @@
 # @mod_name@
 
-Version: @mod_version@
-
 - Modの詳細､使用法に関しては[Wiki](../../wiki)を参照してください
 - 既知の不具合に関しては[Issues](../../issues)を参照してください
 
