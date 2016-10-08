@@ -118,7 +118,7 @@ task genMcmodInfo {
 processResources.dependsOn genMcmodInfo
 setupDecompWorkspace.finalizedBy genMcmodInfo
 
-task genDependencyJSON( dependsOn: configurations.runtime ) {
+task genDependencyJSON( dependsOn: [ configurations.runtime, extractUserdev ] ) {
   ext {
     destinationDirs = sourceSets.main.resources.srcDirs
     paths = destinationDirs.collect { project.file( "${ it }/dependencies.json" ) }
@@ -131,6 +131,13 @@ task genDependencyJSON( dependsOn: configurations.runtime ) {
   }
 
   doLast {
+    def defaultLibraries = []
+    def defaultLibrariesText = project.file( "${ extractUserdev.destinationDir }/dev.json" ).text
+    def defaultLibrariesJson = new groovy.json.JsonSlurper().parseText( defaultLibrariesText )
+    defaultLibrariesJson.libraries.each { data ->
+      defaultLibraries << data.name.split( ':' ).take( 2 ).join( ':' )
+    }
+
     def ignoreUrls = [
       'https://repo1.maven.org/maven2',
       'https://jcenter.bintray.com',
@@ -148,6 +155,7 @@ task genDependencyJSON( dependsOn: configurations.runtime ) {
     mavenRepositories.unique()
 
     def ignoreGroups = project.properties[ 'ignoreGroups' ]?.split( ',' )
+    def ignoreArtifacts = project.properties[ 'ignoreArtifacts' ]?.split( ',' )
     def configuration = configurations.runtime.resolvedConfiguration
     def dependencies  = configuration.firstLevelModuleDependencies
     def allModuleArtifacts = dependencies.collect { it.allModuleArtifacts }
@@ -155,15 +163,8 @@ task genDependencyJSON( dependsOn: configurations.runtime ) {
     def libraries = []
     def buildChecksum = { url ->
       def checksum = [:]
-      try
-      {
-        checksum << [ md5: "${ url }.md5".toURL().text ]
-        checksum << [ sha1: "${ url }.sha1".toURL().text ]
-      }
-      catch ( e )
-      {
-        ;
-      }
+      try { checksum << [ md5: "${ url }.md5".toURL().text ] } catch ( e ) {}
+      try { checksum << [ sha1: "${ url }.sha1".toURL().text ] } catch ( e ) {}
       checksum ? [ checksum: checksum ] : [:]
     }
 
@@ -175,7 +176,9 @@ task genDependencyJSON( dependsOn: configurations.runtime ) {
       def version = id.version
       def file = artifact.file
 
+      if ( defaultLibraries.any { it == "$groupId:$artifactId" } ) return
       if ( ignoreGroups?.any { groupId.startsWith( it ) } ) return
+      if ( ignoreArtifacts?.any { artifactId.startsWith( it ) } ) return
 
       mavenRepositories.each { baseUrl ->
 
