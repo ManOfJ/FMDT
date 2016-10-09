@@ -118,10 +118,10 @@ task genMcmodInfo {
 processResources.dependsOn genMcmodInfo
 setupDecompWorkspace.finalizedBy genMcmodInfo
 
-task genAssetsDir {
+task makeAssetsDir {
   ext {
     destinationDirs = sourceSets.main.resources.srcDirs
-    paths = destinationDirs.collect { project.file( "${ it }/${ mcmod.package.replace( '.', '/' ) }" ) }
+    paths = destinationDirs.collect { project.file( "${ it }/assets/${ mcmod.id }" ) }
   }
 
   outputs.files project.files( paths )
